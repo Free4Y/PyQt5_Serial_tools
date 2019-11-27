@@ -10,7 +10,6 @@ import serial
 import serial.tools.list_ports
 from PyQt5.QtCore import QTimer
 import time
-import otp_load
 import binascii
 
 
@@ -123,9 +122,6 @@ class UI_Func(QtWidgets.QMainWindow, Ui_MainWindow):
 
         else:
             pass
-
-    def uart_otp_load(self):
-        zboot = otp_load.Uart_control()
 
 
 
