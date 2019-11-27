@@ -831,7 +831,6 @@ if __name__ == '__main__':
 
     #烧录uart_control.bin到内存运行，用于double check，因为otp的设置需要重启才能生效。
     if args.uart_control:
-        print("uart_control again")
         uart_control_bin = args.uart_control
         uart_control.install_flash_bootloader(open(uart_control_bin, 'rb').read())
         uart_control.boot()
