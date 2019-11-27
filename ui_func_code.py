@@ -9,9 +9,12 @@ from test_designer import Ui_MainWindow
 import serial
 import serial.tools.list_ports
 from PyQt5.QtCore import QTimer
+import time
+import otp_load
+import binascii
+
 
 bandrate_dict = {1: '115200', 2: '921600', 3: '1500000', 4: '2000000'}
-
 
 class UI_Func(QtWidgets.QMainWindow, Ui_MainWindow):
     """
@@ -44,34 +47,65 @@ class UI_Func(QtWidgets.QMainWindow, Ui_MainWindow):
         port_list = list(serial.tools.list_ports.comports())
         self.port.clear()
         for port in port_list:
-            self.Com_Dict["%s" %port[0]] = "%s" %port[1]
+            self.Com_Dict["%s" % port[0]] = "%s" % port[1]
             self.port.addItem(port[0])
         if len(self.Com_Dict) == 0:
             self.statusbar.showMessage("无串口")
 
-    def serial_open_port(self, port, bandrate = 115200, bytesize = 8, stopbits = 1, parity = serial.PARITY_NONE):
+    def serial_port_set_boot(self):
+        # rts -> BOOT  dtr -> RST
+        self.ser.setDTR(False)
+        self.ser.setRTS(False)
+        time.sleep(0.1)
+        self.ser.setRTS(False)
+        self.ser.setDTR(True)
+        time.sleep(0.1)
+        self.ser.setDTR(False)
+        self.ser.setRTS(False)
+        time.sleep(0.1)
+
+    def serial_port_set_isp(self):
+        # rts -> BOOT  dtr -> RST
+        self.ser.setDTR(False)
+        self.ser.setRTS(False)
+        time.sleep(0.1)
+        self.ser.setRTS(True)
+        self.ser.setDTR(True)
+        time.sleep(0.1)
+        self.ser.setDTR(False)
+        self.ser.setRTS(False)
+        time.sleep(0.1)
+
+    def serial_open_port(self, port, bandrate=115200):
         self.ser.port = port
         self.ser.baudrate = bandrate
-        self.ser.stopbits = stopbits
-        self.ser.parity = parity
+        self.ser.bytesize = serial.EIGHTBITS
+        self.ser.stopbits = serial.STOPBITS_ONE
+        self.ser.parity = serial.PARITY_NONE
 
         try:
+            # 打开串口
             self.ser.open()
         except:
             self.statusbar.showMessage("串口打开失败")
             return None
 
+        # 启动串口接收定时
         self.timer.start(2)
         if self.ser.is_open:
             self.statusbar.showMessage("串口已打开")
 
+        # 设置k210正常上电
+        self.serial_port_set_boot()
 
+    # 关闭串口
     def serial_close_port(self):
         self.timer.stop()
         try:
             self.ser.close()
         except:
             self.statusbar.showMessage("串口关闭失败")
+
 
     def data_receive(self):
         try:
@@ -90,6 +124,8 @@ class UI_Func(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             pass
 
+    def uart_otp_load(self):
+        zboot = otp_load.Uart_control()
 
 
 
