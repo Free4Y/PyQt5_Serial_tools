@@ -737,6 +737,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     uart_control = Uart_control(port=args.device, baudrate=115200)
 
+    test = uart_control
     retry_count = 0
     while True:
         try:
