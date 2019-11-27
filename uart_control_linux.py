@@ -837,7 +837,6 @@ if __name__ == '__main__':
         uart_control.boot()
         time.sleep(0.3)
 
-    print("uart control bin load over")
     #读取aes key与aes iv相关的otp设置
     if aes_key:
         print("aes_iv_read: ", binascii.hexlify(uart_control.aes_iv_read()))    #读取设置的aes iv，用于判断保证烧写的iv正确。
